@@ -1,0 +1,7 @@
+[project]
+name = "goit-pycore-hw-03"
+version = "0.1.0"
+description = "01 Python programming"
+readme = "README.md"
+requires-python = ">=3.14"
+dependencies = []
