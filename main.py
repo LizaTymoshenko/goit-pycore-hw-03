@@ -16,7 +16,7 @@ def get_days_from_today(date: str) -> int:
     from datetime import datetime
 
     try:
-        date = datetime.strptime(date, '%Y-%m-%d')
+        date = datetime.strptime(date, '%Y-%m-%d').date()
     except Exception as e:
          print(f"Wrong data format: {e}.\n"
                "Expected format: YYYY-MM-DD. Example: 2026-12-25")
@@ -45,14 +45,14 @@ def get_numbers_ticket(min: int, max: int, quantity: int) -> list:
     Returns: 
         rand_nums (list): list of random numbers of specified quantity in range from min to max including.
     """
-    if (min < 1 or max > 1000) or (max <= min) or (quantity > max) or (quantity < min):
-        print('Min must be >= 1 and Max must be <= 1000. Min must be < Max. Quantity must be >=min and <= max.\n'
+    if (min < 1 or max > 1000) or (max <= min) or (quantity < 1) or (quantity > max-min):
+        print('Min must be >= 1 and Max must be <= 1000. Min must be < Max. Quantity must be >=1 and <= max-min.\n'
               f'Current values: min - {min}, max - {max}, quantity - {quantity}.')
-        return 
+        return []
 
     import random
     all_nums = [n for n in range(min, max+1)]
-    return random.sample(all_nums, quantity)
+    return sorted(random.sample(all_nums, quantity))
 
 # assert len(set(get_numbers_ticket(1,10, 2))) == 2
 # assert len(set(get_numbers_ticket(1,10, 9))) == 9
@@ -60,7 +60,7 @@ def get_numbers_ticket(min: int, max: int, quantity: int) -> list:
 # assert get_numbers_ticket(1,1001, 9) == None
 # assert get_numbers_ticket(1,10, 11) == None
 
-lottery_numbers = get_numbers_ticket(1, 49, 6)
+lottery_numbers = get_numbers_ticket(44, 49, 5)
 print("Ваші лотерейні числа:", lottery_numbers)
 
 
@@ -76,7 +76,7 @@ def normalize_phone(phone_number: str) -> str:
 
     """
     import re
-    formatted_phone_number = re.sub(r'[\(\)\-nt\s\\\n\t]', "" ,phone_number)
+    formatted_phone_number = re.sub(r'[^0-9\+]', "" ,phone_number)
     if re.search(r'^0\d+', formatted_phone_number) and len(formatted_phone_number) == 10:
         formatted_phone_number = '+38' + formatted_phone_number
     elif re.search(r'^3\d+', formatted_phone_number) and len(formatted_phone_number) == 12:
@@ -92,14 +92,14 @@ def normalize_phone(phone_number: str) -> str:
 
 raw_numbers = [
     "067\\t123 4567",
-    "(095) 234-5678\\n",
+    "(095) <234-5678\\n",
     "+380 44 123 4567",
-    "380501234567",
+    "380501234567)*%",
     "    +38(050)123-32-34",
     "     0503451234",
     "(050)8889900",
     "38050-111-22-22",
-    "38050 111 22 11   ",
+    "38050 ?111 22 11   ",
 ]
 
 sanitized_numbers = [normalize_phone(num) for num in raw_numbers]
@@ -124,9 +124,16 @@ def get_upcoming_birthdays(users: list[dict]) -> list[dict]:
         name = user.get('name')
         bd = user.get('birthday')
         bd = datetime.strptime(bd, '%Y.%m.%d').date()
-        next_bd = date(year=now.year, month=bd.month, day=bd.day)
+        try:
+            next_bd = date(year=now.year, month=bd.month, day=bd.day)
+        except ValueError:
+            next_bd = date(year=now.year, month=bd.month+1, day=1)
         if next_bd < now:
-            next_bd = date(year=now.year+1, month=bd.month, day=bd.day)
+            try:
+                next_bd = date(year=now.year+1, month=bd.month, day=bd.day)
+            except ValueError:
+                next_bd = date(year=now.year+1, month=bd.month+1, day=1)
+
         if (next_bd - now).days <= 7:
             if next_bd.isoweekday() >= 6:
                 next_bd += timedelta(days=8-next_bd.isoweekday())
@@ -136,8 +143,8 @@ def get_upcoming_birthdays(users: list[dict]) -> list[dict]:
     return congrats
 
 users = [
-    {"name": "John Doe", "birthday": "1985.11.23"},
-    {"name": "Jane Smith", "birthday": "1990.10.31"}
+    # {"name": "John Doe", "birthday": "1985.10.28"},
+    {"name": "Jane Smith", "birthday": "1992.02.29"}
 ]
 
 upcoming_birthdays = get_upcoming_birthdays(users)
