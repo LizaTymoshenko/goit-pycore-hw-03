@@ -1,7 +1,7 @@
 
 ####### TASK 1 ###########
 # Calculate number of days between current date and selected date
-def get_days_from_today(date: str) -> int:
+def get_days_from_today(sdate: str) -> int:
     """
     Calculate number of days between current date and selected date.
     Args:
@@ -13,17 +13,17 @@ def get_days_from_today(date: str) -> int:
                     Example: 10
     """
 
-    from datetime import datetime
+    from datetime import datetime, date
 
     try:
-        date = datetime.strptime(date, '%Y-%m-%d').date()
+        sdate = datetime.strptime(sdate, '%Y-%m-%d').date()
     except Exception as e:
          print(f"Wrong data format: {e}.\n"
                "Expected format: YYYY-MM-DD. Example: 2026-12-25")
          return
     else:
-        now = datetime.now()
-        dist = now - date
+        now = date.today()
+        dist = now - sdate
         return dist.days
 
 
@@ -32,6 +32,7 @@ def get_days_from_today(date: str) -> int:
 # assert get_days_from_today('2027-10-10') == -350
 # assert get_days_from_today('2027.10.10') == None
 
+print(get_days_from_today('2027-10-10'))
 
 ####### TASK 2 ###########
 def get_numbers_ticket(min: int, max: int, quantity: int) -> list:
@@ -45,7 +46,7 @@ def get_numbers_ticket(min: int, max: int, quantity: int) -> list:
     Returns: 
         rand_nums (list): list of random numbers of specified quantity in range from min to max including.
     """
-    if (min < 1 or max > 1000) or (max <= min) or (quantity < 1) or (quantity > max-min):
+    if (min < 1 or max > 1000) or (max <= min) or (quantity < 1) or (quantity > max-min+1):
         print('Min must be >= 1 and Max must be <= 1000. Min must be < Max. Quantity must be >=1 and <= max-min.\n'
               f'Current values: min - {min}, max - {max}, quantity - {quantity}.')
         return []
@@ -60,7 +61,7 @@ def get_numbers_ticket(min: int, max: int, quantity: int) -> list:
 # assert get_numbers_ticket(1,1001, 9) == None
 # assert get_numbers_ticket(1,10, 11) == None
 
-lottery_numbers = get_numbers_ticket(44, 49, 5)
+lottery_numbers = get_numbers_ticket(1, 5, 5)
 print("Ваші лотерейні числа:", lottery_numbers)
 
 
